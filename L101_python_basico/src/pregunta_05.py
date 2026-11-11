@@ -1,3 +1,9 @@
+import pandas as pd
+from pathlib import Path
+
+PATH = Path(__file__).resolve().parents[1]
+INPUT_FILE = PATH / "data" / "data.csv.gz"
+
 def pregunta_05():
     """
     Para cada letra de la primera columna (`letter`), encuentre el valor
@@ -8,5 +14,17 @@ def pregunta_05():
 
         [("A", 9, 2), ("B", 9, 1), ...]
     """
+    df = pd.read_csv(
+        INPUT_FILE,
+        sep="\t",
+        header=None,
+        compression="gzip",
+    )
+    
+    por_letra = df.groupby(0)[1].agg(["max", "min"])
 
-    raise NotImplementedError
+    resultado = []
+    for letra, fila in por_letra.iterrows():
+        resultado.append((letra, int(fila["max"]), int(fila["min"])))
+
+    return resultado

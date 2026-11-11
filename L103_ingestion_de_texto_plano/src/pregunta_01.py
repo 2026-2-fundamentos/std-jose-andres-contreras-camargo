@@ -1,3 +1,10 @@
+import pandas as pd
+from pathlib import Path
+
+PATH = Path(__file__).resolve().parents[1]
+INPUT_FILE = PATH / "data" / "clusters_report.txt"
+
+
 def pregunta_01():
     """
     El archivo `data/clusters_report.txt` es un reporte de clústeres de
@@ -26,4 +33,43 @@ def pregunta_01():
         ...
     """
 
-    raise NotImplementedError
+    with open(INPUT_FILE, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    clusters = []
+
+    for line in lines:
+        partes = line.split()
+        # Línea vacía
+        if len(partes) == 0:
+            continue
+
+        # Inicio de clúster
+        es_inicio = len(partes) >= 4 and partes[0].isdigit() and partes[3] == "%"
+
+        if es_inicio:
+            clusters.append(
+                {
+                    "cluster": int(partes[0]),
+                    "cantidad_de_palabras_clave": int(partes[1]),
+                    "porcentaje_de_palabras_clave": float(partes[2].replace(",", ".")),
+                    "texto": " ".join(partes[4:]),
+                }
+            )
+        # Continuación de clúster
+        elif len(clusters) > 0 and not line.startswith("-") and not line.startswith("Cluster"):
+            clusters[-1]["texto"] = clusters[-1]["texto"] + " " + " ".join(partes)
+
+    # Limpiar el texto
+    for cluster in clusters:
+        texto = cluster["texto"].strip()
+    # Quitar el punto final
+        if texto.endswith("."):
+          texto = texto[:-1]
+
+        palabras = [p.strip() for p in texto.split(",") if p.strip() != ""]
+        cluster["principales_palabras_clave"] = ", ".join(palabras)
+        del cluster["texto"]
+
+    return pd.DataFrame(clusters)
+
