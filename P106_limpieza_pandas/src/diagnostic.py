@@ -10,7 +10,7 @@ OUTPUT_FILE = ACTIVITY_DIR / "submission" / "ventas.csv"
 def main():
     df = pd.read_csv(OUTPUT_FILE)
     # series = df["purchase_date"]
-    series = df["weight"]
+    series = df["unit_price"]
     # series = series.replace(r"\d", "d", regex=True)
 
     # series = series[series.str.match(r"\d{2}/\d{2}/\d{4}")]
